@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -24,6 +24,7 @@ async function run() {
     const database = client.db("bistroDB");
     const menuCollection = database.collection("menu");
     const reviewsCollection = database.collection("reviews");
+    const cartCollection = database.collection("carts");
 
     // getAPI for all menu
     app.get("/menu", async (req, res) => {
@@ -34,6 +35,28 @@ async function run() {
     // getAPI for all reviews
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find({}).toArray();
+      res.send(result);
+    });
+
+    // create a cart
+    app.post("/carts", async (req, res) => {
+      const data = req.body;
+      const result = await cartCollection.insertOne(data);
+      res.send(result);
+    });
+
+    // get the cart items of a specific user
+    app.get("/carts", async (req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // delete cart item
+    app.delete("/carts/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
 
