@@ -73,6 +73,14 @@ async function run() {
       res.send(result);
     });
 
+    // delete user
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // get All users
     app.get("/users", async (req, res) => {
       const result = await userCollection.find({}).toArray();
